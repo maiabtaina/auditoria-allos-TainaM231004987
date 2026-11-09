@@ -131,6 +131,24 @@ for t in reg.tipo_erro.unique():
 pd.DataFrame(rs).to_csv(os.path.join(R, "comparacao_erros_inseridos_x_amostra.csv"), index=False)
 out["amostra_x_erros"] = rs
 
+
+# ---- Encerramento da avaliação MUS (PT 530) ----
+excesso = stringer - MAT_PE
+UL_pos = RF * SI  # após correção das distorções identificadas e sem novos erros: só precisão básica
+out["mus_encerramento"] = dict(excesso_limite_superior_sobre_tolerável=round(excesso, 2), excesso_pct=round(excesso / MAT_PE, 4),
+    limite_superior_pos_correcao=round(UL_pos, 2), aceita_pos_correcao=bool(round(UL_pos, 2) <= round(MAT_PE, 2)),
+    distorcao_monetaria_identificada_populacao=None)
+
+# ---- Falsos positivos do teste de depreciação (mantidos na interpretação) ----
+dep_flag = flags["DEPRECIACAO INCORRETA"]; ins_dep = set(reg.loc[reg.tipo_erro == "DEPRECIACAO INCORRETA", "id_registro"])
+fp_ids = set(df.loc[dep_flag, "id_registro"]) - ins_dep
+corte_ids = set(reg.loc[reg.tipo_erro == "CORTE (ATIVACAO EM 2026)", "id_registro"]); man_ids = set(reg.loc[reg.tipo_erro == "LANCAMENTO MANUAL ATIPICO", "id_registro"])
+fp_corte = len(fp_ids & corte_ids); fp_man = len(fp_ids & man_ids); fp_outros = len(fp_ids - corte_ids - man_ids)
+tp = int(dep_flag.sum()) - len(fp_ids)
+out["falsos_positivos_depreciacao"] = dict(sinalizados=int(dep_flag.sum()), verdadeiros_positivos=tp, falsos_positivos=len(fp_ids),
+    por_corte=fp_corte, por_lancamento_manual=fp_man, outros=fp_outros, precisao=round(tp / int(dep_flag.sum()), 4), deteccao=round(tp / len(ins_dep), 4))
+assert len(fp_ids) == 183 and fp_corte == 112 and fp_man == 71 and fp_outros == 0, (len(fp_ids), fp_corte, fp_man, fp_outros)
+
 # ---- PT 450: mapa de distorções (população) ----
 dist_pop = df.copy()
 mapa = []
@@ -142,6 +160,7 @@ mapa = pd.DataFrame(mapa); mapa.to_csv(os.path.join(R, "mapa_distorcoes_PT450.cs
 out["mapa_distorcoes"] = mapa.to_dict("records")
 out["distorcao_potencial_total"] = round(mapa.distorcao_potencial_total.sum(), 2)
 out["distorcao_quantificada_monetaria"] = round(mapa[~mapa.tipo_erro.isin(["SEM DOCUMENTO SUPORTE", "LANCAMENTO MANUAL ATIPICO"])].distorcao_potencial_total.sum(), 2)
+out["mus_encerramento"]["distorcao_monetaria_identificada_populacao"] = out["distorcao_quantificada_monetaria"]
 
 # ---- JE test / Benford ----
 first = df.valor_custo[df.valor_custo >= 1].astype(int).astype(str).str[0].astype(int)

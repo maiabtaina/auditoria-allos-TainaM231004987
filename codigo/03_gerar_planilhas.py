@@ -88,9 +88,16 @@ put(ws, "A17", "Precisão básica (R$) = RF x intervalo"); put(ws, "B17", "=B6*B
 put(ws, "A18", "Distorção projetada (R$) = soma(taint) x intervalo"); put(ws, "B18", ra["distorcao_projetada"], fmt=N2)
 put(ws, "A19", "Limite superior de distorção - Stringer/Poisson (R$)", bold); put(ws, "B19", ra["limite_superior_stringer"], fmt=N2); ws["B19"].fill = yel
 put(ws, "A20", "Conclusão estatística"); put(ws, "B20", '=IF(B19>B5,"NÃO ACEITA: limite superior > erro tolerável","ACEITA")'); put(ws, "C20", "Resultado SIMULADO. Em trabalho real: ampliar amostra, solicitar correção e reavaliar risco.")
-put(ws, "A22", "Incrementos Poisson 95% (1º ao 10º erro ordenado por taint)"); 
-for i, v in enumerate([1.75, 1.55, 1.46, 1.40, 1.36, 1.33, 1.31, 1.29, 1.28, 1.27]): put(ws, f"{chr(66+i) if i<2 else 'B'}{23+i}", v, fmt="0.00") if False else put(ws, f"B{23+i}", v, fmt="0.00")
-put(ws, "C23", "Detalhe da amostra e das exceções: dados/resultados/amostra_mus_selecionada.csv")
+put(ws, "A28", "Incrementos Poisson 95% (1º ao 10º erro ordenado por taint)"); 
+for i, v in enumerate([1.75, 1.55, 1.46, 1.40, 1.36, 1.33, 1.31, 1.29, 1.28, 1.27]): put(ws, f"B{29+i}", v, fmt="0.00")
+put(ws, "C29", "Detalhe da amostra e das exceções: dados/resultados/amostra_mus_selecionada.csv")
+
+put(ws, "A21", "ENCERRAMENTO - excesso do limite superior sobre o erro tolerável (R$)", bold); put(ws, "B21", "=B19-B5", fmt=N2)
+put(ws, "A22", "Excesso em % do erro tolerável"); put(ws, "B22", "=B21/B5", fmt=P1)
+put(ws, "A23", "Distorções monetárias identificadas em 100% da base (R$, PT450)"); put(ws, "B23", res["distorcao_quantificada_monetaria"], fmt=N2)
+put(ws, "A24", "Limite superior após correção, sem novos erros (= precisão básica) (R$)"); put(ws, "B24", "=B17", fmt=N2)
+put(ws, "A25", "Conclusão após correção", bold); put(ws, "B25", '=IF(ROUND(B24,2)<=ROUND(B5,2),"ACEITA NO LIMITE (condicionada à correção efetiva)","NÃO ACEITA")')
+put(ws, "C25", "Antes da correção a população NÃO é aceita (B20). Em trabalho real, retestar os itens corrigidos.")
 
 # ---------- PT 540 PCE ----------
 ws = sheet("PT540_PCE", "PT 540 - Estimativa: provisão para perdas de crédito esperadas (nota 8) - recálculo e sensibilidade", [40, 16, 16, 16, 16, 16, 16])
@@ -120,6 +127,27 @@ put(ws, "A20", "Variação vs base (R$ mil)")
 for c in "BCDEF": put(ws, f"{c}20", f"={c}19-$D$19", fmt=N0)
 put(ws, "A21", "Variação vs materialidade de execução (x)")
 for c in "BCDEF": put(ws, f"{c}21", f"=ABS({c}20)/'PT320_Materialidade'!$D$11", fmt='0.00"x"')
+
+put(ws, "A23", "ENCERRAMENTO - proxy: mesma matriz aplicada a serviços e outros (nota 8)", bold)
+head(ws, 24, ["Saldo bruto (R$ mil)", "A vencer", "<=90 dias", "91-180", "181-360", ">360", "Total"])
+sv = [37518, 3513, 4019, 4225, 24630]; ou = [3441, 1272, 900, 1230, 16156]
+put(ws, "A25", "Prestação de serviços"); put(ws, "A26", "Outros")
+for i in range(5):
+    put(ws, f"{chr(66+i)}25", sv[i], fmt=N0); put(ws, f"{chr(66+i)}26", ou[i], fmt=N0)
+put(ws, "G25", "=SUM(B25:F25)", fmt=N0); put(ws, "G26", "=SUM(B26:F26)", fmt=N0)
+put(ws, "A27", "Provisão esperada (matriz) sobre serviços+outros")
+for cc in "BCDEF": put(ws, f"{cc}27", f"=({cc}25+{cc}26)*{cc}9", fmt=N0)
+put(ws, "G27", "=SUM(B27:F27)", fmt=N0)
+put(ws, "A28", "Estimativa pontual do auditor = matriz principal + proxy (R$ mil)", bold); put(ws, "B28", "=G10+G27", fmt=N0)
+put(ws, "A29", "PCE registrada (R$ mil)"); put(ws, "B29", "=B12", fmt=N0)
+put(ws, "A30", "Diferença: registrada - estimativa do auditor (R$ mil)"); put(ws, "B30", "=B29-B28", fmt=N0)
+put(ws, "A31", "Diferença / estimativa do auditor"); put(ws, "B31", "=B30/B28", fmt='0.0%')
+put(ws, "A32", "Diferença / materialidade de execução"); put(ws, "B32", "=ABS(B30)/'PT320_Materialidade'!D11", fmt='0.00"x"')
+put(ws, "A33", "Acima do limite de trivialidade?"); put(ws, "B33", "=IF(ABS(B30)>'PT320_Materialidade'!D12,\"sim\",\"não\")")
+put(ws, "A34", "Conclusão", bold); put(ws, "B34", '=IF(ABS(B30)<\'PT320_Materialidade\'!D11,"PCE razoável: diferença abaixo da materialidade de execução; acumular no PT450 como diferença de julgamento","INVESTIGAR: diferença acima da materialidade de execução")')
+put(ws, "A35", "Valor justo estilizado com +200 bps (R$ mil) = 32.208.683 x 9,5% / 11,5%"); put(ws, "B35", "=32208683*0.095/0.115", fmt=N0)
+put(ws, "A36", "Folga sobre o valor contábil de PPI (20.381.666)"); put(ws, "B36", "=B35/20381666-1", fmt=P1)
+put(ws, "C36", "Indicativo estilizado, não é avaliação (PT540).")
 
 # ---------- PT 520 Analíticos ----------
 ws = sheet("PT520_Analiticos", "PT 520 - Procedimentos analíticos (DFP 2025 x 2024, consolidado) - REALIZADO COM EVIDÊNCIA PÚBLICA", [44, 14, 14, 12, 12, 14, 14, 14, 40])
@@ -168,6 +196,13 @@ put(ws, f"A{e+1}", "Distorções monetárias quantificadas (exclui 'sem document
 put(ws, f"A{e+2}", "Materialidade global (R$)"); put(ws, f"C{e+2}", "='PT320_Materialidade'!B19", font=grn, fmt=N2)
 put(ws, f"A{e+3}", "Quantificada / materialidade global"); put(ws, f"C{e+3}", f"=C{e+1}/C{e+2}", fmt=P1)
 put(ws, f"A{e+4}", "Conclusão SIMULADA"); put(ws, f"C{e+4}", f'=IF(C{e+3}>1,"Distorções não corrigidas EXCEDEM a materialidade: opinião modificada, se persistissem","Abaixo da materialidade")')
+
+put(ws, f"A{e+6}", "Teste de depreciação: falsos positivos MANTIDOS e interpretados", bold)
+fpd = res["falsos_positivos_depreciacao"]
+for k_, (lab, val) in enumerate([("Registros sinalizados", fpd["sinalizados"]), ("Verdadeiros positivos (erro de depreciação inserido)", fpd["verdadeiros_positivos"]), ("Falsos positivos", fpd["falsos_positivos"]), ("  dos quais por data de ativação alterada para 2026 (corte)", fpd["por_corte"]), ("  dos quais por custo alterado em lançamento manual", fpd["por_lancamento_manual"]), ("  outras causas", fpd["outros"])]):
+    put(ws, f"A{e+7+k_}", lab); put(ws, f"C{e+7+k_}", val, fmt="#,##0")
+put(ws, f"A{e+13}", "Precisão = verdadeiros positivos / sinalizados"); put(ws, f"C{e+13}", f"=C{e+8}/C{e+7}", fmt=P1)
+put(ws, f"A{e+14}", "Interpretação"); put(ws, f"C{e+14}", "A divergência vem de outro erro no mesmo registro; mantidos nas contagens, sem exclusão.")
 
 # ---------- Cobertura ----------
 ws = sheet("Cobertura_Normas", "Matriz de cobertura: norma x papel de trabalho (versões em versoes_normas.py e no PDF)", [26, 14, 70])

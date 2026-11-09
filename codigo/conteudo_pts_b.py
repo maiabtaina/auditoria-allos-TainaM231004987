@@ -217,3 +217,24 @@ EXC = {
 "PT 570":"Nenhuma exceção; covenant contratual não recalculado (PL).",
 "PT 580":"Nenhuma exceção; carta real não obtida.",
 "PT 600":"Nenhuma exceção; evidência por componente não obtida."}
+
+
+# ===================== Revisão v1.1 (09/11/2026): ajustes pedidos pelo professor =====================
+def _p(cod): return next(x for x in PTS if x["cod"] == cod)
+_p("PT 330")["proc"][2] = ("SM","R2/PPI-mensuração: recálculo de depreciação em 100% da base: EXECUTADO (200/200 detectados; 183 sinalizações adicionais MANTIDAS e interpretadas em PT 450).")
+_p("PT 450")["proc"] += [
+ ("SM","INTERPRETAÇÃO DOS 183 FALSOS POSITIVOS DA DEPRECIAÇÃO (MANTIDOS): o recálculo sinalizou 383 registros: 200 com erro de depreciação inserido (verdadeiros positivos) e 183 sem erro de depreciação inserido. Dos 183, 112 têm a data de ativação alterada para 2026 (erro de corte) e 71 têm o custo alterado por lançamento manual atípico; nenhum tem outra causa. Como o recálculo depende de data de ativação e custo, a divergência é consequência de OUTRO erro no mesmo registro, e não falha do teste. Os 183 permanecem nas contagens (precisão 52,2% = 200/383; detecção 100%) e não foram excluídos nem recalibrados. Leitura: como falsos positivos para o erro de depreciação, reduzem a precisão; como sinais, apontam registros realmente errados e devem ser investigados."),
+ ("RP","Diferença de estimativa da PCE (indicativa, dados públicos; não compõe o total simulado): R$ 3.801 mil a menor entre a PCE registrada e a estimativa pontual do auditor (PT 540); abaixo da materialidade de execução, acima do limite de trivialidade; acumulada como diferença de julgamento, não corrigida.")]
+_p("PT 450")["res"] += " Os 183 falsos positivos da depreciação foram mantidos e interpretados (ver procedimento de interpretação acima)."
+_p("PT 530")["proc"] += [
+ ("SM","ENCERRAMENTO DA AVALIAÇÃO DA MUS - (i) antes da correção, o limite superior (R$ 100.530.747) excede o erro tolerável (R$ 38.160.038) em R$ 62.370.710 (163% acima do tolerável): população NÃO aceita; (ii) as distorções monetárias identificadas em 100% da base pelos testes de população somam R$ 65.752.721 e devem ser corrigidas; (iii) com a correção efetiva e sem novos erros, a reavaliação resulta apenas na precisão básica (RF x intervalo = R$ 38.160.038), igual ao erro tolerável: população aceita NO LIMITE."),
+ ("SM","Condição da conclusão (iii): em trabalho real, reexecutar o teste sobre os itens corrigidos e obter nova evidência antes de aceitar a população; a aceitação no limite não deixa margem para erros adicionais.")]
+_p("PT 530")["res"] += " CONCLUSÃO FINAL (avaliação da MUS encerrada): população não aceita no estado original; aceita no limite apenas depois de corrigidas as distorções identificadas. Os 18 itens da amostra com exceção e as 10 distorções quantificadas estão em dados/resultados/amostra_mus_selecionada.csv."
+_p("PT 540")["proc"] += [
+ ("RP","ENCERRAMENTO DA AVALIAÇÃO - estimativa pontual do auditor para a PCE: matriz sobre aluguéis, CDU e cotas (R$ 497.805 mil) + proxy da mesma matriz sobre serviços e outros (R$ 52.426 mil) = R$ 550.231 mil. PCE registrada de R$ 546.430 mil: diferença de R$ 3.801 mil a menor (0,7%), abaixo da materialidade de execução (R$ 38.160 mil), porém acima do limite de trivialidade (R$ 2.544 mil); registrada como diferença de julgamento a acumular no PT 450, sem correção."),
+ ("SM","ENCERRAMENTO - incerteza e viés: a sensibilidade de +/-10 p.p. altera a PCE em até R$ 6.847 mil (0,18x a materialidade de execução), logo a incerteza é baixa; a cobertura subiu de 51,8% para 54,3% e a despesa de PCE caiu 3,3% (R$ 49.074 mil para R$ 47.458 mil), sem direção única que indique viés da administração."),
+ ("SM","ENCERRAMENTO - valor recuperável (indicativo): mesmo com +200 bps na taxa de desconto, o valor justo estilizado (R$ 26,6 bi) supera o valor contábil (R$ 20,4 bi) em cerca de 30%; sem indicador de perda por esse teste simplificado.")]
+_p("PT 540")["res"] += " CONCLUSÃO FINAL (avaliação das estimativas encerrada): PCE razoável, com diferença de julgamento de R$ 3.801 mil abaixo da materialidade de execução; valor recuperável sem indicador de perda no teste de sensibilidade; nenhum viés identificado. A conclusão se limita às informações públicas e ao modelo estilizado, sem acesso ao modelo interno da administração."
+EXC["PT 450"] = "Distorções simuladas não corrigidas: R$ 65.752.721 quantificadas, mais as de controle e qualitativas. Os 183 falsos positivos da depreciação foram mantidos e interpretados."
+EXC["PT 530"] = "18 itens da amostra com exceção (10 com distorção quantificada). Avaliação encerrada: não aceita antes da correção; aceita no limite após a correção das distorções identificadas."
+EXC["PT 540"] = "Diferença de R$ 3.801 mil entre a PCE registrada e a estimativa pontual do auditor, abaixo da materialidade de execução; avaliação encerrada sem ajuste obrigatório."
