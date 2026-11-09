@@ -171,6 +171,23 @@
       "itens_chave_100pct": 0
     }
   ],
+  "mus_encerramento": {
+    "excesso_limite_superior_sobre_tolerável": 62370709.74,
+    "excesso_pct": 1.6345,
+    "limite_superior_pos_correcao": 38160037.5,
+    "aceita_pos_correcao": true,
+    "distorcao_monetaria_identificada_populacao": 65752720.97
+  },
+  "falsos_positivos_depreciacao": {
+    "sinalizados": 383,
+    "verdadeiros_positivos": 200,
+    "falsos_positivos": 183,
+    "por_corte": 112,
+    "por_lancamento_manual": 71,
+    "outros": 0,
+    "precisao": 0.5222,
+    "deteccao": 1.0
+  },
   "mapa_distorcoes": [
     {
       "tipo_erro": "DUPLICIDADE",
